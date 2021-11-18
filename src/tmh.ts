@@ -5,6 +5,8 @@ import {Commands, World} from "mojang-minecraft";
  */
 export class gameData {
 
+	
+
 	/**
 	 * 
 	 * @param ObjectiveName objective name
@@ -12,7 +14,9 @@ export class gameData {
 	 * @returns true (or false if objective doesnt exists)
 	 */
 	static getScoreboardNumber(ObjectiveName: string, PlayerName: string) {
-		let scoreboard = Commands.run(`scoreboard players list "${PlayerName}"`,World.getDimension("overworld"));
+		try {
+			let scoreboard = Commands.run(`scoreboard players list "${PlayerName}"`,World.getDimension("overworld"));
+		} catch (e) {}
     }
 
 	/**
@@ -21,9 +25,11 @@ export class gameData {
 	 * @param Tags  tags that the player has
 	 * @returns true (or false if tag doesnt exists ) 
 	 */
-	static hasTags(PlayerName: string, Tags:string) {
-		let tagslist = Commands.run(`tags "${PlayerName}" list`,World.getDimension("overworld"));
-		if (tagslist.search(Tags)) { return true; } else { throw false; }
+	hasTags(PlayerName: string, Tags:string) {
+		try {
+			let taglist: string;
+			taglist = Commands.run(`tag "${PlayerName}" list`,World.getDimension("overworld"))
+			if (taglist.search(Tags) == -1) return true;
+		} catch (e) {}
 	}
-
 }	
