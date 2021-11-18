@@ -15,6 +15,7 @@ export class gameData {
 	 */
 	static getScoreboardNumber(ObjectiveName: string, PlayerName: string) {
 		try {
+			//FIXME: No ideas here..
 			let scoreboard = Commands.run(`scoreboard players list "${PlayerName}"`,World.getDimension("overworld"));
 		} catch (e) {}
     }
