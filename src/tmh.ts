@@ -30,7 +30,7 @@ export class gameData {
 		try {
 			let taglist: string;
 			taglist = Commands.run(`tag "${PlayerName}" list`,World.getDimension("overworld"))
-			if (taglist.search(Tags) == -1) return true;
+			if (taglist.search(Tags) == -1) {return true; } else { return false; }
 		} catch (e) {}
 	}
 }	
