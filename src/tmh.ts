@@ -13,7 +13,7 @@ export class gameData {
 	 * @param PlayerName player name
 	 * @returns true (or false if objective doesnt exists)
 	 */
-	static getScoreboardNumber(ObjectiveName: string, PlayerName: string) {
+	getScoreboardNumber(ObjectiveName: string, PlayerName: string) {
 		try {
 			//FIXME: No ideas here..
 			let scoreboard = Commands.run(`scoreboard players list "${PlayerName}"`,World.getDimension("overworld"));
@@ -26,7 +26,7 @@ export class gameData {
 	 * @param Tags  tags that the player has
 	 * @returns true (or false if tag doesnt exists ) 
 	 */
-	hasTags(PlayerName: string, Tags:string) {
+	static hasTags(PlayerName: string, Tags:string) {
 		try {
 			let taglist: string;
 			taglist = Commands.run(`tag "${PlayerName}" list`,World.getDimension("overworld"))
