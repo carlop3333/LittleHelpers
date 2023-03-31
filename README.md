@@ -1,3 +1,5 @@
-# PerfectBAH
-### BetaAPI as easy as f**k
-Work in progress... (**a playground version is only available**)
+# PerfectBAH Playground
+This showcases an example of how this can be used in a Prisons server.
+
+- Some notes:
+- The example is on spanish
