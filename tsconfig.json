@@ -28,7 +28,7 @@
        ]
     },
     "include":[ 
-       "prisons/*"
+       "examples/prisons/*"
     ],
     "exclude":[ 
        "node_modules"

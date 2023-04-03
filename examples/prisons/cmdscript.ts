@@ -1,12 +1,5 @@
 // PerfectBAH 0.0.1-playground -- carlop3k
-import {
-  Enchantment,
-  ItemEnchantsComponent,
-  ItemStack,
-  MinecraftEnchantmentTypes,
-  MinecraftItemTypes,
-  world,
-} from "@minecraft/server";
+import { world } from "@minecraft/server";
 
 const bloques = [
   "minecraft:emerald",
