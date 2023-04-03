@@ -8,6 +8,21 @@ import {
   world,
 } from "@minecraft/server";
 
+const bloques = [
+  "minecraft:emerald",
+  "minecraft:diamond",
+  "minecraft:iron_ingot",
+  "minecraft:gold_ingot",
+  "minecraft:lapis_lazuli",
+  "minecraft:coal",
+  "minecraft:cobbled_deepslate",
+  "minecraft:cobblestone",
+  "minecraft:dirt_with_roots",
+  "minecraft:moss_block",
+  "minecraft:dirt",
+  "minecraft:packed_mud",
+];
+
 var over = world.getDimension("overworld");
 const ayuda = [
   "\n-- Ayuda --",
@@ -17,6 +32,7 @@ const ayuda = [
   "\n !mina : Te envia a la mina basica de tierra (Cualquier nivel).",
   "\n !minavip : Te envia a la mina conocida por todos -> la de minerales (Nivel 1).",
   "\n !baltop : Muestra las 10 personas mas ricas del servidor.",
+  "\n !vendertodo : Vende todos los minerales/tierras que tienes en tu inventario (A un precio reducido).",
   "\n !ayuda / !help: Muestra este texto.",
   "\n--  --\n",
 ];
@@ -28,14 +44,18 @@ const help = [
   "\n !mina : Sends you to the basic dirt mine (Any level).",
   "\n !minavip : Sends you to the more known mine: the ores one (Level 1).",
   "\n !baltop : Shows the top 10 richest people in the world.",
+  "\n !vendertodo : Sells all the minerals/dirts you have in your inventory (To a reduced price).",
   "\n !ayuda / !help: Shows this text.",
   "\n-- --\n",
 ];
 
 export function chat() {
   // TODO: Rewrite this for a flexible system
-  world.events.beforeChat.subscribe((chat) => {
+  world.events.beforeChat.subscribe(async (chat) => {
+    const Player = chat.sender;
+    const name = chat.sender.name;
     if (chat.message.startsWith("!")) {
+      chat.cancel = true;
       var arrayMessage = chat.message.split(" ");
       var cmdName = arrayMessage[0].slice(1, arrayMessage[0].length);
       switch (cmdName) {
@@ -66,52 +86,55 @@ export function chat() {
           }
           var textend = texto.slice(0, texto.length - 1); // fix for undefined final
           textend.push("\n");
-          chat.sender.sendMessage(textend);
+          Player.sendMessage(textend);
           break;
         case "dinero":
-          var dinero = world.scoreboard.getObjective("money").getScore(chat.sender.scoreboard);
-          chat.sender.sendMessage(`§2Tienes ${dinero}$ en tu cuenta bancaria.`);
-          break;
-        case "comida":
-          over.runCommandAsync(`give ${chat.sender.name} apple 5`);
-          chat.sender.sendMessage(`§aSe te han dado 5 de comida!`);
-          break;
-        case "madera":
-          over.runCommandAsync(`give ${chat.sender.name} log 5`);
-          chat.sender.sendMessage(`§aSe te han dado 5 de madera!`);
+          var dinero = world.scoreboard.getObjective("money").getScore(Player.scoreboard);
+          Player.sendMessage(`§2Tienes ${dinero}$ en tu cuenta bancaria.`);
           break;
         case "mina":
-          chat.sender.sendMessage(`Enviando a mina!`);
-          over.runCommandAsync(`tp ${chat.sender.name} -21 -60 -2`);
+          Player.sendMessage(`§8Enviando a mina!`);
+          over.runCommandAsync(`tp ${Player.name} -21 -60 -2`);
           break;
-        case "minavip":
-          var niveles = world.scoreboard.getObjective("levels").getScore(chat.sender.scoreboard);
+        case "minapiedra":
+          var niveles = world.scoreboard.getObjective("levels").getScore(Player.scoreboard);
           if (niveles >= 1) {
-            chat.sender.sendMessage(`Enviando a mina VIP!`);
-            over.runCommandAsync(`tp ${chat.sender.name} -60.51 -38.00 -169.37`);
+            Player.sendMessage(`§eEnviando a mina de piedra!`);
+            over.runCommandAsync(`tp ${Player.name} -60.51 -38.00 -169.37`);
           } else {
-            chat.sender.sendMessage(
-              `Lo siento, no cumples los requisitos para entrar a la mina VIP (Necesitas ser nivel 1)`
+            Player.sendMessage(
+              `§4Lo siento, no cumples los requisitos para entrar a la mina de piedra (Necesitas ser nivel 1)`
             );
           }
           break;
+        case "vendertodo":
+          Player.sendMessage(`Espera un momento...`);
+          var selledBlocks = 0;
+          for (var j = 0; j <= bloques.length - 1; j++) {
+            for (var i = 0; i <= 64; i++) {
+              try {
+                await over.runCommandAsync(`clear ${name} ${bloques[j]} 0 1`);
+                selledBlocks++;
+              } catch (e) {
+                break;
+              }
+            }
+          }
+          var monTo = selledBlocks * 3;
+          over.runCommandAsync(`scoreboard players add ${name} money ${monTo}`);
+          Player.sendMessage(`§2Transacción exitosa§f, se le ha añadido §2${monTo}$ §fa su cuenta bancaria.`);
+          break;
         case "ayuda":
-          chat.sender.sendMessage(ayuda);
+          Player.sendMessage(ayuda);
           break;
         case "help":
-          chat.sender.sendMessage(help);
+          Player.sendMessage(help);
           break;
         case "test":
-          const ench = new Enchantment(MinecraftEnchantmentTypes.fireAspect, 2);
-          const test = new ItemStack(MinecraftItemTypes.diamondSword, 1);
-          const comp = test.getComponent("minecraft:enchantments") as ItemEnchantsComponent;
-          const enchComp = comp.enchantments;
-          enchComp.addEnchantment(ench);
-          comp.enchantments = enchComp;
-          over.spawnItem(test, chat.sender.location);
+          world.sendMessage("Hola!");
           break;
         default:
-          chat.sender.sendMessage(
+          Player.sendMessage(
             `Comando incorrecto, seguro que has puesto un comando correcto? || wrong comand, u sure u put a correct command? (usa !ayuda / use !help)`
           );
           break;
@@ -119,17 +142,17 @@ export function chat() {
       chat.cancel = true;
     } else {
       var hasTag = false;
-      var tags = chat.sender.getTags();
+      var tags = Player.getTags();
       for (var tag of tags) {
         if (tag.startsWith("rank:")) {
-          world.sendMessage(`§f[${tag.substring(5)}§f] ${chat.sender.name}: ${chat.message}`);
+          world.sendMessage(`§f[${tag.substring(5)}§f] ${Player.name}: ${chat.message}`);
           chat.cancel = true;
           var hasTag = true;
           break;
         }
       }
       if (!hasTag) {
-        world.sendMessage(`§f[§bMiembro§f] ${chat.sender.name}: ${chat.message}`);
+        world.sendMessage(`§f[§bMiembro§f] ${Player.name}: ${chat.message}`);
         chat.cancel = true;
       }
     }

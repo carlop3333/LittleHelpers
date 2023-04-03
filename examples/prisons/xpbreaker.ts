@@ -31,7 +31,7 @@ export function xpBreak() {
     if (levelsData == 0) {
       levelUP = 600;
     } else {
-      levelUP = Math.round((levelsData + 1) * 300 * Math.sqrt(Math.E * (levelsData * 1.5)));
+      levelUP = Math.round((levelsData + 1) * 300 * Math.sqrt(Math.E * ((levelsData + 1) * 1.5)));
     } // the more you break and level up, the more is harder
     for (var i = 0; i <= brokenBlocks.length; i++) {
       if (trigg.brokenBlockPermutation.type == brokenBlocks[i]) {
@@ -41,13 +41,22 @@ export function xpBreak() {
         );
       }
     }
-    if (xpsData >= levelUP) {
+    if (xpsData >= levelUP && levelsData == 0) {
       await over.runCommandAsync(`scoreboard players set ${trigg.player.name} xps 0`);
       await over.runCommandAsync(`scoreboard players set ${trigg.player.name} levels ${levelsData + 1}`);
       trigg.player.playSound("random.levelup");
       trigg.player.sendMessage(
         `Felicitaciones, llegaste al nivel ${levelsData + 1}!\nPara llegar al siguiente nivel necesitas ${Math.round(
-          (levelsData + 3) * 300 * Math.sqrt(Math.E * (levelsData * 1.5))
+          (levelsData + 2) * 300 * Math.sqrt(Math.E * ((levelsData + 2) * 1.5))
+        )}XP\nHas desbloqueado la mina de piedra! Puedes acceder a ella usando !minapiedra o la brujula de tu inventario.`
+      );
+    } else if (xpsData >= levelUP) {
+      await over.runCommandAsync(`scoreboard players set ${trigg.player.name} xps 0`);
+      await over.runCommandAsync(`scoreboard players set ${trigg.player.name} levels ${levelsData + 1}`);
+      trigg.player.playSound("random.levelup");
+      trigg.player.sendMessage(
+        `Felicitaciones, llegaste al nivel ${levelsData + 1}!\nPara llegar al siguiente nivel necesitas ${Math.round(
+          (levelsData + 2) * 300 * Math.sqrt(Math.E * ((levelsData + 2) * 1.5))
         )}XP`
       );
     }

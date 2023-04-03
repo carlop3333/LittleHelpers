@@ -1,0 +1,2 @@
+- prisons: The folder where the example is.
+- package.json / tsconfig.json: well intelisense fixes

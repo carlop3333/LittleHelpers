@@ -1,9 +1,7 @@
 // PerfectBAH 0.0.1-playground -- carlop3k
-import { world, MinecraftItemTypes, Player } from "@minecraft/server";
+import { world, MinecraftItemTypes, Player, ItemStack, Enchantment, ItemEnchantsComponent } from "@minecraft/server";
 import * as ui from "@minecraft/server-ui";
-import * as cosastienda from "./cosastienda";
-const over = world.getDimension("overworld");
-const bloqvender = [
+export const bloqvender = [
   "Esmeralda (100 monedas)",
   "Diamante (80 monedas)",
   "Hierro (20 monedas)",
@@ -17,8 +15,8 @@ const bloqvender = [
   "Tierra (1 moneda)",
   "Barro compacto (1 moneda)",
 ];
-const mon = [100, 80, 20, 38, 25, 15, 10, 5, 1, 2, 1, 1];
-const bloques = [
+export const mon = [100, 80, 20, 38, 25, 15, 10, 5, 1, 2, 1, 1];
+export const bloques = [
   "minecraft:emerald",
   "minecraft:diamond",
   "minecraft:iron_ingot",
@@ -32,17 +30,29 @@ const bloques = [
   "minecraft:dirt",
   "minecraft:packed_mud",
 ];
-const tui = new ui.ModalFormData()
+
+export const warps = new ui.ActionFormData()
+  .title("Warps")
+  .body("Selecciona a que warp ir")
+  .button("Mina de tierra")
+  .button("Mina de piedra (Nivel 1)");
+export const gui = new ui.ActionFormData()
+  .title("Opciones")
+  .body("Selecciona:")
+  .button("Warps", "textures/blocks/portal_placeholder")
+  .button("Tienda", "textures/items/emerald")
+  .button("Creditos", "textures/items/record_5");
+export const tui = new ui.ModalFormData()
   .title("Vender")
   .dropdown("Selecciona los items a vender", bloqvender, 7)
   .slider("Selecciona cuanto quieres vender:", 4, 64, 4, 32)
   .toggle("Vender todo el mineral?", false);
-const cov = new ui.MessageFormData()
+export const cov = new ui.MessageFormData()
   .title("Compra/Venta")
   .body("Selecciona la accion a hacer")
   .button1("Vender")
   .button2("Comprar");
-const sui = new ui.ActionFormData()
+export const sui = new ui.ActionFormData()
   .title("Comprar")
   .body("Selecciona en que categoria vas a comprar:")
   .button("§b§lEquipamiento y kits", "textures/items/diamond_sword")
@@ -51,212 +61,47 @@ const sui = new ui.ActionFormData()
   .button("§6§lAcceso Express", "textures/items/light_block_15");
 
 // SECCION DE EQUIPAMIENTOS
-const sui1 = new ui.MessageFormData()
+export const sui1 = new ui.MessageFormData()
   .title("§b§lEquipamiento y kits")
   .body("Selecciona que quieres comprar:")
   .button1("Kits")
   .button2("Equipamientos");
-const suikits = new ui.ActionFormData()
+export const suikits = new ui.ActionFormData()
   .title("Kits")
   .body("Selecciona los kits a comprar:")
-  .button("Kit Basico")
-  .button("Kit Promedio")
-  .button("Kit PRO")
-  .button("Kit Express");
-const suiequips = new ui.ActionFormData()
+  .button("§iKit Basico", "textures/items/iron_sword")
+  .button("§6Kit Promedio", "textures/items/gold_sword")
+  .button("§cKit PRO", "textures/items/diamond_sword")
+  .button("§6§lKit Express", "textures/items/diamond_helmet");
+export const suiequips = new ui.ActionFormData()
   .title("Equipamientos/Herramientas")
   .body("Selecciona uno de los equipamientos a comprar:")
-  .button("Espada PRO")
-  .button("Pico SuperEficiente")
-  .button("Espada Afiladisima")
-  .button("Pico Arrasador")
-  .button("Casco Inmortal");
+  .button("§r§b§lEspada OP", "textures/items/netherite_sword")
+  .button("§r§d§lPico SuperEficiente", "textures/items/iron_pickaxe")
+  .button("§r§c§lEspada Afiladisima", "textures/items/iron_sword")
+  .button("§r§9§lPico Arrasador", "textures/items/gold_pickaxe")
+  .button("§r§6§lCasco Inmortal", "textures/items/diamond_helmet");
 
 // SECCION DE COSAS RANDOM
-const rando = new ui.ActionFormData()
+export const rando = new ui.ActionFormData()
   .title("§g§lRandom y otros")
   .body("Selecciona el item a comprar")
-  .button("Perlas de ender")
-  .button("Telescopio")
-  .button("Carne cocinada")
-  .button("Pedernal")
-  .button("Botella de XP");
+  .button("Madera", "textures/blocks/log_oak")
+  .button("Perlas de ender", "textures/items/ender_pearl")
+  .button("Telescopio", "textures/items/spyglass")
+  .button("Carne cocinada", "textures/items/beef_cooked")
+  .button("Mechero", "textures/items/flint_and_steel")
+  .button("Botella de XP", "textures/items/experience_bottle")
+  .button("Caparazón de shulker", "textures/items/shulker_shell");
 // SECCION DE POCIONES Y ENCANTAMIENTOS
-
-const compass = MinecraftItemTypes.compass;
-
-class ShopUI {
-  abrirOpciones(player) {
-    cov.show(player).then((tt) => {
-      switch (tt.selection) {
-        case 1:
-          this.#abrirVender(player);
-          break;
-        case 0:
-          this.#abrirComprar(player);
-          break;
-      }
-    });
-  }
-  #abrirComprar(player) {
-    sui.show(player).then((tt) => {
-      switch (tt.selection) {
-        case 0:
-          this.#abrirComprarEqui(player);
-          break;
-        case 1:
-          this.#abrirComprarRandom(player);
-          break;
-      }
-    });
-  }
-  #abrirComprarEqui(player) {
-    sui1.show(player).then((ttt) => {
-      switch (ttt.selection) {
-        case 0:
-          this.#abrirComprarEquipamiento(player);
-          break;
-        case 1:
-          this.#abrirComprarKits(player);
-          break;
-      }
-    });
-  }
-  #abrirComprarEquipamiento(player) {
-    suiequips.show(player).then((tt) => {
-      if (tt.canceled) {
-        this.#abrirComprar(player);
-      }
-    });
-  }
-  #abrirComprarKits(player) {
-    suikits.show(player).then((tt) => {
-      if (tt.canceled) {
-        this.#abrirComprar(player);
-      } else {
-        switch (tt.selection) {
-          case 0:
-            this.#abrirComprarFin(player, 1);
-            break;
-          case 1:
-            this.#abrirComprarFin(player, 2);
-            break;
-        }
-      }
-    });
-  }
-  #abrirComprarRandom(player) {
-    rando.show(player).then((tt) => {
-      if (tt.canceled) {
-        this.#abrirComprar(player);
-      }
-    });
-  }
-
-  #abrirVender(player) {
-    var getBlocks = 0;
-    var itemToSell = 0;
-    var selledBlocks = 0;
-    var isSellingAll = false;
-    var canceled = true;
-    tui
-      .show(player)
-      .then((tt) => {
-        getBlocks = parseInt(tt.formValues[1]);
-        itemToSell = parseInt(tt.formValues[0]);
-        isSellingAll = tt.formValues[2];
-        canceled = tt.canceled; // fix jst ic
-      })
-      .finally(async () => {
-        if (isSellingAll && !canceled) {
-          for (var i = 0; i <= 256; i++) {
-            try {
-              await player.runCommandAsync(`clear ${player.nameTag} ${bloques[itemToSell]} 0 1`);
-              selledBlocks++;
-            } catch (e) {
-              break;
-            }
-          }
-          var monTo = mon[itemToSell] * selledBlocks;
-          await over.runCommandAsync(`scoreboard players add ${player.nameTag} money ${monTo}`);
-          player.sendMessage(`§2Transacción exitosa§f, se le ha añadido §2${monTo}$ §fa su cuenta bancaria.`);
-        } else if (!canceled) {
-          for (var i = 0; i <= getBlocks - 1; i++) {
-            try {
-              await player.runCommandAsync(`clear ${player.nameTag} ${bloques[itemToSell]} 0 1`);
-              selledBlocks++;
-            } catch (e) {}
-          }
-          if (selledBlocks == getBlocks) {
-            var monTo = mon[itemToSell] * selledBlocks;
-            await over.runCommandAsync(`scoreboard players add ${player.nameTag} money ${monTo}`);
-            player.sendMessage(`§2Transacción exitosa§f, se le ha añadido §2${monTo}$ §fa su cuenta bancaria.`);
-          } else if (selledBlocks != getBlocks) {
-            player.sendMessage("§cNo tienes los suficientes bloques/items como para hacer la transacción.");
-            over.runCommandAsync(`give ${player.nameTag} ${bloques[itemToSell]} ${selledBlocks}`);
-          }
-        }
-      });
-  }
-  #abrirComprarFin(player, idToGet) {
-    var value, price: number, name: string, desc, clicked: boolean;
-    cosastienda.ide.ids.map((map) => {
-      if (map.id == idToGet) {
-        value = map.value;
-
-        price = map.price;
-        name = map.name;
-        desc = map.description;
-      }
-    });
-    const CustomUI = new ui.MessageFormData()
-      .title("Confirmación")
-      .body(
-        `Seguro que quieres comprar ${name}? §rEste item cuesta ${price}$ y tiene la siguiente descripción:\n\n${desc}`
-      )
-      .button1("Si")
-      .button2("No")
-      .show(player)
-      .then((tt) => {
-        if (tt.canceled || tt.selection == 2) {
-          this.#abrirComprar(player);
-        } else {
-          if (tt.selection == 1) {
-            clicked = true;
-          }
-        }
-      })
-      .finally(() => {
-        if (clicked) {
-          player.sendMessage(`§2Transacción finalizada. Has comprado ${name} por ${price}$`);
-        }
-      });
-  }
-}
-
-const TiendaUI = new ShopUI();
-
-export function tienda() {
-  world.events.playerSpawn.subscribe((trigg) => {
-    if (trigg.initialSpawn) {
-      over.runCommandAsync(
-        `replaceitem entity ${trigg.player.name} slot.hotbar 8 compass 1 0 {"minecraft:item_lock":{"mode":"lock_in_slot"}}`
-      );
-    }
-  });
-  world.events.beforeItemUse.subscribe((trigg) => {
-    if (trigg.item.type == compass) {
-      const Player = trigg.source;
-      trigg.item.nameTag = "§r§9§lTienda";
-      trigg.item.setLore([
-        "§r§8--",
-        "§r§fUsa click derecho para abrir la interfaz en PC",
-        "§r§fO deja presionado si estas en movil",
-        "§r§fLT (R2) en consolas",
-        "§r§f(Tienda creada por carlop3k)",
-        "§r§8--",
-      ]);
-      TiendaUI.abrirOpciones(Player);
-    }
-  });
-}
+export const pots = new ui.ActionFormData()
+  .title("§c§lPociones y encantamientos")
+  .body("Selecciona el item a comprar:")
+  .button("Poción de Resistencia al Fuego", "textures/items/potion_bottle_fireResistance")
+  .button("Poción de la Tortuga Maestra", "textures/items/potion_bottle_turtleMaster")
+  .button("Poción arrojadiza de Lentitud Extrema", "textures/items/potion_bottle_splash_moveSlowdown")
+  .button("Poción arrojadiza de Regeneración II", "textures/items/potion_bottle_splash_regeneration")
+  .button("Fortuna 3", "textures/items/book_enchanted")
+  .button("Eficiencia 5", "textures/items/book_enchanted")
+  .button("Irrompibilidad 4", "textures/items/book_enchanted")
+  .button("Reparación", "textures/items/book_enchanted");
