@@ -1,3 +1,4 @@
+// PerfectBAH 0.0.1 -- carlop3k
 import { Vector, Vector3 } from "@minecraft/server";
 /**
  * @description An 3d area capable of detecting entities & other weird shit
